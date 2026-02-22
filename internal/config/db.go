@@ -1,14 +1,11 @@
 package config
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
 )
-
-
 
 func Connect() *sql.DB {
 	user := os.Getenv("PG_USER")
