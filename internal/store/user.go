@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"log"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -19,15 +21,15 @@ type UserRepository interface {
 }
 
 type PostgresUserRepository struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func NewPostgresUserRepository (db *sql.DB) *PostgresUserRepository {
-	return &PostgresUserRepository{db: db}
+func NewPostgresUserRepository (pool *pgxpool.Pool) *PostgresUserRepository {
+	return &PostgresUserRepository{pool: pool}
 }
 
 func (r *PostgresUserRepository) Save(ctx context.Context, u *User) (*User, error) {
-	err := r.db.QueryRowContext(ctx, `INSERT INTO users (name) VALUES ($1) RETURNING id`, u.Name).Scan(&u.ID)
+	err := r.pool.QueryRow(ctx, `INSERT INTO users (name) VALUES ($1) RETURNING id`, u.Name).Scan(&u.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +38,7 @@ func (r *PostgresUserRepository) Save(ctx context.Context, u *User) (*User, erro
 }
 
 func (r *PostgresUserRepository) GetAll(ctx context.Context) ([]*User, error) {
-	rows, err := r.db.QueryContext(ctx, `SELECT id, name FROM users`)
+	rows, err := r.pool.Query(ctx, `SELECT id, name FROM users`)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -61,7 +63,7 @@ func (r *PostgresUserRepository) GetAll(ctx context.Context) ([]*User, error) {
 
 func (r *PostgresUserRepository) GetById(ctx context.Context, id int) (*User, error) {
 	var u User
-	err := r.db.QueryRowContext(ctx, `SELECT id, name FROM users WHERE id=$1`, id).Scan(&u.ID, &u.Name)
+	err := r.pool.QueryRow(ctx, `SELECT id, name FROM users WHERE id=$1`, id).Scan(&u.ID, &u.Name)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {

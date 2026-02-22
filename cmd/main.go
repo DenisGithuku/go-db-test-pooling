@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"githukudenis.com/db-test-pooling/internal/config"
 	"githukudenis.com/db-test-pooling/internal/handler"
@@ -10,8 +13,14 @@ import (
 )
 
 func main() {
-	db := config.Connect()
-	repo := store.NewPostgresUserRepository(db)
+	// db := config.Connect()
+	ctx := context.Background()
+	pool, err := config.NewPostgresPool(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer pool.Close()
+	repo := store.NewPostgresUserRepository(pool)
 	service := service.NewUserService(repo)
 	handler := handler.NewUserHandler(service)
 
