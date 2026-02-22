@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"strconv"
 	"github.com/gin-gonic/gin"
 	"githukudenis.com/db-test-pooling/internal/service"

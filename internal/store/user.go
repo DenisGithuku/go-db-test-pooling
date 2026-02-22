@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type User struct {
