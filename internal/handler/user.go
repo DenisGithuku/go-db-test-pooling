@@ -16,7 +16,8 @@ func NewUserHandler(s *service.UserService) *UserHandler {
 	return &UserHandler{service: s}
 }
 
-func (h *UserHandler) GetAllUsers(ctx context.Context, c *gin.Context) {
+func (h *UserHandler) GetAllUsers(c *gin.Context) {
+	ctx := c.Request.Context()
 	users, err := h.service.GetAll(ctx)
 	if err != nil {
 		c.Error(err)
@@ -24,7 +25,8 @@ func (h *UserHandler) GetAllUsers(ctx context.Context, c *gin.Context) {
 	c.JSON(200, users)
 }
 
-func (h *UserHandler) RegisterUser(ctx context.Context, c *gin.Context) {
+func (h *UserHandler) RegisterUser(c *gin.Context) {
+	ctx := c.Request.Context()
 	var body struct {
 		Name string `json:"name"`
 	}
@@ -39,7 +41,8 @@ func (h *UserHandler) RegisterUser(ctx context.Context, c *gin.Context) {
 	c.JSON(201, user)
 }
 
-func (h *UserHandler) GetUserById(ctx context.Context, c *gin.Context) {
+func (h *UserHandler) GetUserById(c *gin.Context) {
+	ctx := c.Request.Context()
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
